@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using HtmlAgilityPack;
 using RestSharp;
-using WebScraping.Classes;
 using Newtonsoft.Json;
 
 namespace WebScraping
@@ -122,7 +121,6 @@ namespace WebScraping
                         }
                         catch (Exception)
                         {
-
                         }
                     }
                 }
