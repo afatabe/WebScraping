@@ -10,7 +10,7 @@ namespace WebScraping
     class PesquisaSeries
     {
         static string vvImdbId;
-        static void Main(string[] args)
+        static void Main2(string[] args)
         {
 
             Console.WriteLine("Inicio da Captura!!");
@@ -24,10 +24,11 @@ namespace WebScraping
             var titulo = paginaSeriesHome.DocumentNode.SelectSingleNode("//head/title").InnerText.Split(' ').Skip(6).First().Trim();
 
             var paginas = Convert.ToInt32(titulo);
+            //            var paginas = 4000;
 
             Int64 contador = 0;
 
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= paginas; i++)
             {
                 var paginaSerie = new HtmlWeb();
 
@@ -50,7 +51,6 @@ namespace WebScraping
                     {
                         try
                         {
-
                             string tituloSerie;
                             var teste = item.SelectSingleNode("div[" + a + "]");
                             try
@@ -105,11 +105,11 @@ namespace WebScraping
                                 if (vvImdbId != null)
                                 {
                                     var seriado = new SERIADO();
-                                    seriado.data = ano;
+                                    seriado.data = ano.Trim();
                                     seriado.episodio = Convert.ToInt64(vEpisodio);
-                                    seriado.serie = vvImdbId;
+                                    seriado.serie = vvImdbId.Trim();
                                     seriado.temporada = Convert.ToInt64(vTemporada);
-                                    seriado.urlserie = urlSerie;
+                                    seriado.urlserie = urlSerie.Trim();
 
                                     using (var conexao = new SERIEEntities())
                                     {
@@ -118,9 +118,12 @@ namespace WebScraping
                                     }
                                 }
                             }
+                            Console.WriteLine("__________________________________________________________________________________________________________________________________________________________________________________");
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
+                            Console.WriteLine(e);
+                            Console.WriteLine("__________________________________________________________________________________________________________________________________________________________________________________");
                         }
                     }
                 }
@@ -150,54 +153,44 @@ namespace WebScraping
             }
         }
 
-        private List<string> ExtractAllAHrefTags(HtmlDocument htmlSnippet)
-        {
-            List<string> hrefTags = new List<string>();
-
-            foreach (HtmlNode link in htmlSnippet.DocumentNode.SelectNodes("//a[@href]"))
-            {
-                HtmlAttribute att = link.Attributes["href"];
-                hrefTags.Add(att.Value);
-            }
-
-
-            return hrefTags;
-        }
-
         private static void GetTorrents(string link, string serie)
         {
-            try
+            if (serie != null)
             {
-                var client = new HtmlWeb();
-                var doc = client.Load(link);
-                var ListaLinks = new List<LINKDOWNLOAD>();
-                foreach (HtmlNode links in doc.DocumentNode.SelectNodes("//*[@id='content']" + "//a[@href]"))
+
+                try
                 {
-                    HtmlAttribute att = links.Attributes["href"];
-                    string sub = att.Value.Substring(0, 4).ToLower().ToString();
-                    if (sub == "http")
+                    var client = new HtmlWeb();
+                    var doc = client.Load(link);
+                    var ListaLinks = new List<LINKDOWNLOAD>();
+                    foreach (HtmlNode links in doc.DocumentNode.SelectNodes("//*[@id='content']" + "//a[@href]"))
                     {
-                        Console.WriteLine("links Torrents : " + att.Value);
+                        HtmlAttribute att = links.Attributes["href"];
+                        string sub = att.Value.Substring(0, 7).ToLower().ToString();
+                        if (sub == "http://")
+                        {
 
-                        var vLink = new LINKDOWNLOAD();
-                        vLink.link = att.Value;
-                        vLink.serie = serie;
-                        vLink.tipo = "TORRENT";
+                            var vLink = new LINKDOWNLOAD();
+                            vLink.shortlink = "";
+                            //                        vLink.shortlink = GetShortLink(att.Value);
+                            vLink.link = att.Value;
+                            vLink.serie = serie;
+                            vLink.tipo = "TORRENT";
 
-                        ListaLinks.Add(vLink);
+                            ListaLinks.Add(vLink);
+                        }
+                    }
+                    Console.WriteLine("links Torrents : " + ListaLinks.Count);
+                    using (var conexao = new SERIEEntities())
+                    {
+                        conexao.LINKDOWNLOAD.AddRange(ListaLinks);
+                        conexao.SaveChanges();
                     }
                 }
-                using (var conexao = new SERIEEntities())
+                catch (Exception e)
                 {
-                    conexao.LINKDOWNLOAD.AddRange(ListaLinks);
-                    conexao.SaveChanges();
+                    Console.WriteLine(e);
                 }
-
-                Console.WriteLine("__________________________________________________________________________________________________________________________________________________________________________________");
-            }
-            catch (Exception)
-            {
-
             }
         }
 
@@ -224,44 +217,67 @@ namespace WebScraping
 
         public static void GetLinksSeries(string link, string serie)
         {
-            try
+            if (serie != null)
             {
-                var client = new HtmlWeb();
-                var doc = client.Load(link);
-
-                var ListaLinks = new List<LINKDOWNLOAD>();
-
-                foreach (HtmlNode links in doc.DocumentNode.SelectNodes("//*[@id='comment_list']" + "//a[@href]"))
+                try
                 {
-                    HtmlAttribute att = links.Attributes["href"];
-                    string sub = att.Value.Substring(0, 4).ToLower().ToString();
-                    if (sub == "http")
+                    var client = new HtmlWeb();
+                    var doc = client.Load(link);
+
+                    var ListaLinks = new List<LINKDOWNLOAD>();
+
+                    if (doc.DocumentNode.SelectNodes("//*[@id='comment_list']" + "//a[@href]") != null)
                     {
-                        Console.WriteLine("links Torrents : " + att.Value);
 
-                        var vLink = new LINKDOWNLOAD();
-                        vLink.link = att.Value;
-                        vLink.serie = serie;
-                        vLink.tipo = "NORMAL";
+                        foreach (HtmlNode links in doc.DocumentNode.SelectNodes("//*[@id='comment_list']" + "//a[@href]"))
+                        {
+                            HtmlAttribute att = links.Attributes["href"];
+                            string sub = att.Value.Substring(0, 7).ToLower().ToString();
+                            if (sub == "http://")
+                            {
+                                var vLink = new LINKDOWNLOAD();
+                                vLink.shortlink = "";
+                                //                        vLink.shortlink = GetShortLink(att.Value);
+                                vLink.link = att.Value;
+                                vLink.serie = serie;
+                                vLink.tipo = "NORMAL";
 
-                        ListaLinks.Add(vLink);
+
+                                ListaLinks.Add(vLink);
+                            }
+                        }
+                        Console.WriteLine("links Download : " + ListaLinks.Count);
+                        using (var conexao = new SERIEEntities())
+                        {
+                            conexao.LINKDOWNLOAD.AddRange(ListaLinks);
+                            conexao.SaveChanges();
+                        }
+
                     }
                 }
-                using (var conexao = new SERIEEntities())
+                catch (Exception e)
                 {
-                    conexao.LINKDOWNLOAD.AddRange(ListaLinks);
-                    conexao.SaveChanges();
+                    Console.WriteLine(e);
                 }
 
-                Console.WriteLine("__________________________________________________________________________________________________________________________________________________________________________________");
-                Console.Clear();
+            }
+
+        }
+
+        private static string GetShortLink(string link)
+        {
+            try
+            {
+                string preUrl = "http://ouo.io/api/Fo6n9L17?s=";
+                var client = new HtmlWeb();
+                var doc = client.Load(preUrl + link.Replace("http://", ""));
+                return doc.DocumentNode.InnerText;
+
             }
             catch (Exception)
             {
-
+                return link;
             }
-
-
         }
     }
 }

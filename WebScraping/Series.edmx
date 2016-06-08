@@ -39,6 +39,7 @@
           <Property Name="link" Type="varchar" MaxLength="8000" Nullable="false" />
           <Property Name="ID" Type="numeric" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="tipo" Type="varchar" MaxLength="8000" Nullable="false" />
+          <Property Name="shortlink" Type="varchar" MaxLength="8000" />
         </EntityType>
         <EntityType Name="SERIADO">
           <Key>
@@ -94,6 +95,7 @@
           <Property Name="link" Type="String" MaxLength="8000" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ID" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="tipo" Type="String" MaxLength="8000" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="shortlink" Type="String" MaxLength="8000" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="SERIADO">
           <Key>
@@ -147,6 +149,7 @@
           <EntitySetMapping Name="LINKDOWNLOAD">
             <EntityTypeMapping TypeName="SERIEModel.LINKDOWNLOAD">
               <MappingFragment StoreEntitySet="LINKDOWNLOAD">
+                <ScalarProperty Name="shortlink" ColumnName="shortlink" />
                 <ScalarProperty Name="serie" ColumnName="serie" />
                 <ScalarProperty Name="link" ColumnName="link" />
                 <ScalarProperty Name="ID" ColumnName="ID" />

@@ -18,5 +18,6 @@ namespace WebScraping
         public string link { get; set; }
         public decimal ID { get; set; }
         public string tipo { get; set; }
+        public string shortlink { get; set; }
     }
 }
