@@ -118,12 +118,12 @@ namespace WebScraping
                                     }
                                 }
                             }
-                            Console.WriteLine("__________________________________________________________________________________________________________________________________________________________________________________");
+                            Console.WriteLine("________________________________________________________________________________________________________________________________________________________");
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine(e);
-                            Console.WriteLine("__________________________________________________________________________________________________________________________________________________________________________________");
+                            Console.WriteLine("________________________________________________________________________________________________________________________________________________________");
                         }
                     }
                 }
@@ -153,7 +153,7 @@ namespace WebScraping
             }
         }
 
-        private static void GetTorrents(string link, string serie)
+        static void GetTorrents(string link, string serie)
         {
             if (serie != null)
             {
@@ -166,7 +166,7 @@ namespace WebScraping
                     foreach (HtmlNode links in doc.DocumentNode.SelectNodes("//*[@id='content']" + "//a[@href]"))
                     {
                         HtmlAttribute att = links.Attributes["href"];
-                        string sub = att.Value.Substring(0, 7).ToLower().ToString();
+                        string sub = att.Value.Substring(0, 7).ToLower();
                         if (sub == "http://")
                         {
 
@@ -264,7 +264,7 @@ namespace WebScraping
 
         }
 
-        private static string GetShortLink(string link)
+        static string GetShortLink(string link)
         {
             try
             {
